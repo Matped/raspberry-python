@@ -1,5 +1,4 @@
 import spotipy
-import numpy
 import requests
 from spotipy import SpotifyOAuth
 from SpotifyUserCredentials import client_id_private, client_secret_private, redirect_uri_private, scope_private
@@ -21,8 +20,18 @@ class SpotifyTrackGrabber:
         redirect_uri=redirect_uri_private,
         scope=scope_private))
 
-    def add_tracks_to_playlist(self, input_track):
-        selected_track = input_track
-        track = SpotifyTrackGrabber.spotify_client.search(q=selected_track, limit=10, offset=0, type="track",
+    def search_for_track(self, input_track):
+        track = SpotifyTrackGrabber.spotify_client.search(q=input_track, limit=10, offset=0, type="track",
                                                           market=None)
-        song_url = track['tracks']['items'][0]['album']['external_urls']['spotify']
+        song_id = track['tracks']['items'][0]['id']
+        return song_id
+
+    def set_track_in_queue(self, track_id):
+        SpotifyTrackGrabber.spotify_client.add_to_queue(uri=track_id, device_id=None)
+
+    def get_queue(self):
+        queue = SpotifyTrackGrabber.spotify_client.current_playback(market=None, additional_types="track")
+        return queue
+
+
+print(SpotifyTrackGrabber.get_queue(SpotifyTrackGrabber))
