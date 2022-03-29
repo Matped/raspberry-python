@@ -4,13 +4,10 @@ from spotipy import SpotifyOAuth
 from SpotifyUserCredentials import client_id_private, client_secret_private, redirect_uri_private, scope_private
 
 """
-Playlist of the raspberry pi unit.
-"""
-playlist = []
-
-"""
 Class that grabs user credentials and has functions for finding tracks and adding them to the playlist
 """
+
+playlist = []
 
 
 class SpotifyTrackGrabber:
@@ -20,18 +17,20 @@ class SpotifyTrackGrabber:
         redirect_uri=redirect_uri_private,
         scope=scope_private))
 
+    def playlist_delete(self, artist, song):
+        playlist.remove({'artist': artist, 'song': song})
+
+    def playlist_add(self, artist, song):
+        playlist.append({'artist': artist, 'song': song})
+
     def search_for_track(self, input_track):
         track = SpotifyTrackGrabber.spotify_client.search(q=input_track, limit=10, offset=0, type="track",
                                                           market=None)
-        song_id = track['tracks']['items'][0]['id']
-        return song_id
+        return track
 
     def set_track_in_queue(self, track_id):
         SpotifyTrackGrabber.spotify_client.add_to_queue(uri=track_id, device_id=None)
 
-    def get_queue(self):
-        queue = SpotifyTrackGrabber.spotify_client.current_playback(market=None, additional_types="track")
-        return queue
-
-
-print(SpotifyTrackGrabber.get_queue(SpotifyTrackGrabber))
+    def currently_playing(self):
+        current_song = SpotifyTrackGrabber.spotify_client.currently_playing(market=None, additional_types="track")
+        return current_song

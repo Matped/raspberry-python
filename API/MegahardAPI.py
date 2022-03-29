@@ -1,6 +1,6 @@
 import json
 from flask import *
-from SpotifyAPI import SpotifyTrackGrabber
+from SpotifyAPI import *
 
 app = Flask(__name__)
 
@@ -8,30 +8,57 @@ app = Flask(__name__)
 POST
 """
 
+
+@app.route('/queuesong/<string:song_id>', methods=["POST"])
+def queue_song(song_id):
+    SpotifyTrackGrabber.set_track_in_queue(SpotifyTrackGrabber, song_id)
+
+
 """
 GET
 """
 
 
+@app.route('/getplaylist', methods=['GET'])
+def get_playlist():
+    return jsonify(playlist)
+
+
 @app.route('/songinput/<string:song>', methods=['GET'])
-def getsong(song):
-    song_id = SpotifyTrackGrabber.search_for_track(SpotifyTrackGrabber, song)
+def get_song(song):
+    track = SpotifyTrackGrabber.search_for_track(SpotifyTrackGrabber, song)
+    track_id = track['tracks']['items'][0]['uri']
+    track_artist = track['tracks']['items'][0]['artists'][0]['name']
+    track_name = track['tracks']['items'][0]['name']
 
-    SpotifyTrackGrabber.set_track_in_queue(SpotifyTrackGrabber, song_id)
+    return jsonify({'id': track_id, 'artist': track_artist, 'name': track_name})
 
 
-@app.route('/currentqueue', methods=['GET'])
-def getqueue():
-    queue = SpotifyTrackGrabber.get_queue(SpotifyTrackGrabber)
-    artist = queue['item']['artists'][0]['name']
-    song = queue['item']['name']
+@app.route("/currentlyplaying", methods=['GET'])
+def get_currently_playing():
+    currently_playing = SpotifyTrackGrabber.currently_playing(SpotifyTrackGrabber)
+    artist = currently_playing['item']['artists'][0]['name']
+    song = currently_playing['item']['name']
+    duration_ms = currently_playing['item']['duration_ms']
+    progress_ms = currently_playing['progress_ms']
 
-    return jsonify({'artist': artist, 'song': song})
+    return jsonify({'artist': artist, 'song': song, 'duration_ms': duration_ms, 'progress_ms': progress_ms})
 
 
 """
 PUT
 """
+
+
+@app.route('/removefromlist/<string:artist><string:song>', methods=['PUT'])
+def remove_from_list(artist, song):
+    SpotifyTrackGrabber.playlist_delete(SpotifyTrackGrabber, artist, song)
+
+
+@app.route('/addtolist/<string:artist><string:song>', methods=['PUT'])
+def add_to_list(artist, song):
+    SpotifyTrackGrabber.playlist_add(SpotifyTrackGrabber, artist, song)
+
 
 """
 DELETE
