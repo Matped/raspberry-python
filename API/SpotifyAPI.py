@@ -8,7 +8,6 @@ Class that grabs user credentials and has functions for finding tracks and addin
 
 playlist = [{'artist': 'ArtistTest', 'song': 'SongTest'}, {'artist': 'ArtistTestTwo', 'song': 'SongTestTwo'}]
 
-
 class SpotifyTrackGrabber:
     spotify_client = spotipy.Spotify(auth_manager=SpotifyOAuth(
         client_id=client_id_private,
