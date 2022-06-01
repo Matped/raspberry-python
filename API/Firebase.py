@@ -1,5 +1,4 @@
 import os
-from MegahardAPI import userAmount, customerAmount, percentageDifference
 import firebase_admin
 from firebase_admin import db
 
@@ -11,14 +10,8 @@ certFile = os.path.join(baseDir, 'apptracker-cadd4-firebase-adminsdk-i2agg-9ddab
 
 # credential object for database and initialization of firebase.
 credObj = firebase_admin.credentials.Certificate(certFile)
-defaultApp = firebase_admin.initialize_app(credObj, {'databaseURL': 'https://apptracker-cadd4-default-rtdb.europe-west1.firebasedatabase.app/'})
-
-
-
+defaultApp = firebase_admin.initialize_app(credObj, {
+    'databaseURL': 'https://apptracker-cadd4-default-rtdb.europe-west1.firebasedatabase.app/'})
 
 # firebase database methods.
 ref = db.reference("/Items/TheBar/")
-
-ref.update({"Users": userAmount})
-ref.update({"Customers": customerAmount})
-ref.update({"Percentage": percentageDifference})

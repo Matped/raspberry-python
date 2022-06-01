@@ -1,16 +1,17 @@
 import socket
 from flask import *
 from SpotifyAPI import *
+from Firebase import ref
+from DatabaseData import *
 
 # getting ip address of device via socket.
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("8.8.8.8", 80))
 ipaddress = s.getsockname()[0]
 
-# variables for data.
-customerAmount = 10
-userAmount = 5
-percentageDifference = userAmount / customerAmount * 100
+# resetting of amount of users if the device is restarted.
+resetUser = 0
+ref.update({'Users': resetUser})
 
 app = Flask(__name__)
 
@@ -19,7 +20,17 @@ POST
 """
 
 
-@app.route('/queuesong/<string:song_id>', methods=["POST"])
+@app.route('/decrementuser', methods=['POST'])
+def minus_user():
+    decrement_user()
+
+
+@app.route('/incrementuser', methods=['POST'])
+def add_user():
+    increment_user()
+
+
+@app.route('/queuesong/<string:song_id>', methods=['POST'])
 def queue_song(song_id):
     SpotifyTrackGrabber.set_track_in_queue(song_id)
     return jsonify(song_id)
@@ -40,21 +51,6 @@ def add_to_list(artist, song):
 """
 GET
 """
-
-
-@app.route('/getuseramount', methods=['GET'])
-def get_user_amount():
-    return jsonify(userAmount)
-
-
-@app.route('/getcustomeramount')
-def get_customer_amount():
-    return jsonify(customerAmount)
-
-
-@app.route('/getpercentage')
-def get_percentage():
-    return jsonify(percentageDifference)
 
 
 @app.route('/getdeviceip', methods=['GET'])
@@ -91,13 +87,6 @@ def get_currently_playing():
 """
 PUT
 """
-
-
-@app.route('/useramount/<int:users>', methods=['PUT'])
-def user_amount_app(users):
-    global userAmount
-    userAmount = users
-
 
 """
 DELETE
